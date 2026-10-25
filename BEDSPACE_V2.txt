@@ -1,0 +1,797 @@
+PROJECT: BEDSPACE_V2
+
+PART 1 - DATABASE AND TABLES
+
+CREATE DATABASE bedspace_v2;
+USE bedspace_v2;
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(15),
+    gender ENUM('Male','Female','Other'),
+    city VARCHAR(50)
+);
+
+CREATE TABLE hostels (
+    hostel_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type ENUM('PG','Hostel','Co-Living'),
+    city VARCHAR(50) NOT NULL,
+    address VARCHAR(255),
+    rating DECIMAL(2,1),
+    total_rooms INT
+);
+
+CREATE TABLE amenities (
+    amenity_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    category VARCHAR(50),
+    icon VARCHAR(50)
+);
+
+CREATE TABLE hostel_amenities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    hostel_id INT,
+    amenity_id INT,
+    is_free BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (hostel_id) REFERENCES hostels(hostel_id),
+    FOREIGN KEY (amenity_id) REFERENCES amenities(amenity_id)
+);
+
+CREATE TABLE rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    hostel_id INT,
+    room_type ENUM('1-Sharing','2-Sharing','3-Sharing','4-Sharing'),
+    rent_per_bed DECIMAL(8,2),
+    capacity INT,
+    floor INT,
+    FOREIGN KEY (hostel_id) REFERENCES hostels(hostel_id)
+);
+
+CREATE TABLE beds (
+    bed_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT,
+    bed_number VARCHAR(10),
+    is_available BOOLEAN DEFAULT TRUE,
+    is_ac BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+);
+
+CREATE TABLE bookings (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    bed_id INT,
+    hostel_id INT,
+    check_in DATE,
+    check_out DATE,
+    status ENUM('Confirmed','Pending','Cancelled','Completed'),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (bed_id) REFERENCES beds(bed_id),
+    FOREIGN KEY (hostel_id) REFERENCES hostels(hostel_id)
+);
+
+CREATE TABLE payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id INT,
+    user_id INT,
+    amount DECIMAL(10,2),
+    method ENUM('UPI','Card','NetBanking','Cash'),
+    status ENUM('Success','Failed','Pending'),
+    payment_date DATE,
+    FOREIGN KEY (booking_id) REFERENCES bookings(booking_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+PART 2 - INSERT DATA
+
+-- USERS
+INSERT INTO users VALUES
+ (1,'Rahul Sharma','rahul@gmail.com','9876543210','Male','Vizag');
+ (2,'Priya Patel','priya@gmail.com','9876543211','Female','Hyderabad');
+ (3,'Aman Verma','aman@gmail.com','9876543212','Male','Vijayawada');
+ (4,'Sneha Reddy','sneha@gmail.com','9876543213','Female','Vizag');
+ (5,'Vikram Singh','vikram@gmail.com','9876543214','Male','Chennai');
+ (6,'Anjali Gupta','anjali@gmail.com','9876543215','Female','Vizag');
+ (7,'Karthik Rao','karthik@gmail.com','9876543216','Male','Hyderabad');
+ (8,'Pooja Mehta','pooja@gmail.com','9876543217','Female','Vizag');
+ (9,'Rohan Kumar','rohan@gmail.com','9876543218','Male','Bangalore');
+ (10,'Divya Sree','divya@gmail.com','9876543219','Female','Vizag');
+
+-- HOSTELS
+INSERT INTO hostels VALUES
+ (1,'Elite Boys PG','PG','Vizag','MVP Colony',4.5,15);
+ (2,'Elite Girls PG','PG','Vizag','Dwaraka Nagar',4.6,12);
+ (3,'Ameerpet Hostel','Hostel','Hyderabad','Ameerpet',4.2,20);
+ (4,'Hitech Co-Living','Co-Living','Hyderabad','Hitech City',4.8,25);
+ (5,'Gajuwaka Home','Hostel','Vizag','Gajuwaka',4.0,10);
+ (6,'Benz Circle PG','PG','Vijayawada','Benz Circle',4.3,18);
+ (7,'Ladies Paradise','PG','Vizag','Siripuram',4.7,8);
+ (8,'Chennai Boys Hostel','Hostel','Chennai','Velachery',3.9,22);
+ (9,'Rushikonda Stay','Hostel','Vizag','Rushikonda',4.1,30);
+ (10,'BTM Premium PG','PG','Bangalore','BTM Layout',4.9,12);
+
+-- AMENITIES
+INSERT INTO amenities VALUES
+ (1,'WiFi','Basic','wifi');
+ (2,'AC','Comfort','ac');
+ (3,'Food','Food','food');
+ (4,'Washing Machine','Basic','wash');
+ (5,'Parking','Security','parking');
+ (6,'CCTV','Security','cctv');
+ (7,'Water Heater','Basic','heater');
+ (8,'Study Table','Furniture','table');
+ (9,'Power Backup','Basic','power');
+ (10,'Gym','Luxury','gym');
+
+-- HOSTEL_AMENITIES
+INSERT INTO HOSTEL_AMENITIES VALUES
+ (1,1,1,1);
+ (2,1,2,0);
+ (3,1,3,0);
+ (4,1,6,1);
+ (5,2,1,1);
+ (6,2,3,0);
+ (7,2,6,1);
+ (8,3,1,1);
+ (9,4,10,0);
+ (10,10,2,1);
+
+-- ROOMS
+INSERT INTO ROOMS VALUES
+ (1,1,'2-Sharing',6000,2,1);
+ (2,1,'3-Sharing',4500,3,1);
+ (3,2,'2-Sharing',6500,2,2);
+ (4,3,'4-Sharing',4000,4,1);
+ (5,4,'1-Sharing',12000,1,3);
+ (6,5,'3-Sharing',3500,3,1);
+ (7,6,'2-Sharing',5500,2,2);
+ (8,7,'2-Sharing',7000,2,1);
+ (9,9,'4-Sharing',3800,4,2);
+ (10,10,'1-Sharing',15000,1,2);
+
+-- BEDS
+INSERT INTO BEDS VALUES
+ (1,1,'A1',1,1);
+ (2,1,'A2',0,1);
+ (3,2,'B1',1,0);
+ (4,2,'B2',1,0);
+ (5,3,'C1',1,1);
+ (6,4,'D1',0,1);
+ (7,5,'E1',1,1);
+ (8,6,'F1',1,0);
+ (9,9,'G1',1,0);
+ (10,10,'H1',1,1);
+
+-- BOOKINGS
+INSERT INTO bookings VALUES
+ (1,1,2,1,'2026-01-10','2026-07-10','Confirmed');
+ (2,2,5,2,'2026-02-01','2026-08-01','Confirmed');
+ (3,3,1,1,'2026-03-15','2026-09-15','Pending');
+ (4,4,6,3,'2026-01-20','2026-04-20','Completed');
+ (5,5,8,5,'2026-02-10','2026-05-10','Cancelled');
+ (6,6,7,4,'2026-04-01','2026-10-01','Confirmed');
+ (7,7,3,1,'2026-05-01','2026-11-01','Confirmed');
+ (8,8,9,9,'2026-03-01','2026-06-01','Confirmed');
+ (9,9,10,10,'2026-06-15','2026-12-15','Confirmed');
+ (10,10,4,1,'2026-07-01','2026-10-01','Pending');
+
+-- PAYMENTS
+INSERT INTO payments VALUES 
+ (1,1,1,6000,'UPI','Success','2026-01-09');
+ (2,2,2,6500,'Card','Success','2026-01-31');
+ (3,3,3,6000,'UPI','Pending','2026-03-14');
+ (4,4,4,4000,'NetBanking','Success','2026-01-19');
+ (5,5,5,3500,'Cash','Failed','2026-02-09');
+ (6,6,6,12000,'UPI','Success','2026-03-31');
+ (7,7,7,4500,'Card','Success','2026-04-30');
+ (8,8,8,3800,'UPI','Success','2026-02-28');
+ (9,9,9,15000,'NetBanking','Success','2026-06-14');
+ (10,10,10,4500,'UPI','Pending','2026-06-30');
+
+PART 3 - VERIFY ROW COUNTS
+
+1. SELECT * FROM users;
+
++---------+----------------+---------------------+------------+--------+------------+
+| user_id | name           | email               | phone      | gender | city       |
++---------+----------------+---------------------+------------+--------+------------+
+| 1       | Rahul Sharma   | rahul@gmail.com     | 9876543210 | Male   | Vizag      |
+| 2       | Priya Patel    | priya@gmail.com     | 9876543211 | Female | Hyderabad  |
+| 3       | Aman Verma     | aman@gmail.com      | 9876543212 | Male   | Vijayawada |
+| 4       | Sneha Reddy    | sneha@gmail.com     | 9876543213 | Female | Vizag      |
+| 5       | Vikram Singh   | vikram@gmail.com    | 9876543214 | Male   | Chennai    |
+| 6       | Anjali Gupta   | anjali@gmail.com    | 9876543215 | Female | Vizag      |
+| 7       | Karthik Rao    | karthik@gmail.com   | 9876543216 | Male   | Hyderabad  |
+| 8       | Pooja Mehta    | pooja@gmail.com     | 9876543217 | Female | Vizag      |
+| 9       | Rohan Kumar    | rohan@gmail.com     | 9876543218 | Male   | Bangalore  |
+| 10      | Divya Sree     | divya@gmail.com     | 9876543219 | Female | Vizag      |
++---------+----------------+---------------------+------------+--------+------------+
+
+2. SELECT * FROM hostels;
+
++-----------+-----------------------+-----------+------------+---------------+--------+-------+
+| hostel_id | name                  | type      | city       | address       | rating | rooms |
++-----------+-----------------------+-----------+------------+---------------+--------+-------+
+| 1         | Elite Boys PG         | PG        | Vizag      | MVP Colony    | 4.50   | 15    |
+| 2         | Elite Girls PG        | PG        | Vizag      | Dwaraka Nagar | 4.60   | 12    |
+| 3         | Ameerpet Hostel       | Hostel    | Hyderabad  | Ameerpet      | 4.20   | 20    |
+| 4         | Hitech Co-Living      | Co-Living | Hyderabad  | Hitech City   | 4.80   | 25    |
+| 5         | Gajuwaka Home         | Hostel    | Vizag      | Gajuwaka      | 4.00   | 10    |
+| 6         | Benz Circle PG        | PG        | Vijayawada | Benz Circle   | 4.30   | 18    |
+| 7         | Ladies Paradise       | PG        | Vizag      | Siripuram     | 4.70   | 8     |
+| 8         | Chennai Boys Hostel   | Hostel    | Chennai    | Velachery     | 3.90   | 22    |
+| 9         | Rushikonda Stay       | Hostel    | Vizag      | Rushikonda    | 4.10   | 30    |
+| 10        | BTM Premium PG        | PG        | Bangalore  | BTM Layout    | 4.90   | 12    |
++-----------+-----------------------+-----------+------------+---------------+--------+-------+
+
+3. SELECT * FROM amenities;
+
++------------+-----------------+----------+---------+
+| amenity_id | name            | category | icon    |
++------------+-----------------+----------+---------+
+| 1          | WiFi            | Basic    | wifi    |
+| 2          | AC              | Comfort  | ac      |
+| 3          | Food            | Food     | food    |
+| 4          | Washing Machine | Basic    | wash    |
+| 5          | Parking         | Security | parking |
+| 6          | CCTV            | Security | cctv    |
+| 7          | Water Heater    | Basic    | heater  |
+| 8          | Study Table     | Furniture| table   |
+| 9          | Power Backup    | Basic    | power   |
+| 10         | Gym             | Luxury   | gym     |
++------------+-----------------+----------+---------+
+
+4. SELECT * FROM hostel_amenities;
+
++----+-----------+------------+---------+
+| id | hostel_id | amenity_id | is_free |
++----+-----------+------------+---------+
+| 1  | 1         | 1          | 1       |
+| 2  | 1         | 2          | 0       |
+| 3  | 1         | 3          | 0       |
+| 4  | 1         | 6          | 1       |
+| 5  | 2         | 1          | 1       |
+| 6  | 2         | 3          | 0       |
+| 7  | 2         | 6          | 1       |
+| 8  | 3         | 1          | 1       |
+| 9  | 4         | 10         | 0       |
+| 10 | 10        | 2          | 1       |
++----+-----------+------------+---------+
+
+5. SELECT * FROM rooms;
+
++---------+-----------+-----------+--------+----------+-------+
+| room_id | hostel_id | room_type | rent   | capacity | floor |
++---------+-----------+-----------+--------+----------+-------+
+| 1       | 1         | 2-Sharing | 6000   | 2        | 1     |
+| 2       | 1         | 3-Sharing | 4500   | 3        | 1     |
+| 3       | 2         | 2-Sharing | 6500   | 2        | 2     |
+| 4       | 3         | 4-Sharing | 4000   | 4        | 1     |
+| 5       | 4         | 1-Sharing | 12000  | 1        | 3     |
+| 6       | 5         | 3-Sharing | 3500   | 3        | 1     |
+| 7       | 6         | 2-Sharing | 5500   | 2        | 2     |
+| 8       | 7         | 2-Sharing | 7000   | 2        | 1     |
+| 9       | 9         | 4-Sharing | 3800   | 4        | 2     |
+| 10      | 10        | 1-Sharing | 15000  | 1        | 2     |
++---------+-----------+-----------+--------+----------+-------+
+
+6. SELECT * FROM beds;
+
++--------+---------+------------+--------------+-------+
+| bed_id | room_id | bed_number | is_available | is_ac |
++--------+---------+------------+--------------+-------+
+| 1      | 1       | A1         | 1            | 1     |
+| 2      | 1       | A2         | 0            | 1     |
+| 3      | 2       | B1         | 1            | 0     |
+| 4      | 2       | B2         | 1            | 0     |
+| 5      | 3       | C1         | 1            | 1     |
+| 6      | 4       | D1         | 0            | 1     |
+| 7      | 5       | E1         | 1            | 1     |
+| 8      | 6       | F1         | 1            | 0     |
+| 9      | 9       | G1         | 1            | 0     |
+| 10     | 10      | H1         | 1            | 1     |
++--------+---------+------------+--------------+-------+
+
+7. SELECT * FROM bookings;
+
++------------+---------+--------+-----------+------------+------------+-----------+
+| booking_id | user_id | bed_id | hostel_id | check_in   | check_out  | status    |
++------------+---------+--------+-----------+------------+------------+-----------+
+| 1          | 1       | 2      | 1         | 2026-01-10 | 2026-07-10 | Confirmed |
+| 2          | 2       | 5      | 2         | 2026-02-01 | 2026-08-01 | Confirmed |
+| 3          | 3       | 1      | 1         | 2026-03-15 | 2026-09-15 | Pending   |
+| 4          | 4       | 6      | 3         | 2026-01-20 | 2026-04-20 | Completed |
+| 5          | 5       | 8      | 5         | 2026-02-10 | 2026-05-10 | Cancelled |
+| 6          | 6       | 7      | 4         | 2026-04-01 | 2026-10-01 | Confirmed |
+| 7          | 7       | 3      | 1         | 2026-05-01 | 2026-11-01 | Confirmed |
+| 8          | 8       | 9      | 9         | 2026-03-01 | 2026-06-01 | Confirmed |
+| 9          | 9       | 10     | 10        | 2026-06-15 | 2026-12-15 | Confirmed |
+| 10         | 10      | 4      | 1         | 2026-07-01 | 2026-10-01 | Pending   |
++------------+---------+--------+-----------+------------+------------+-----------+
+
+8. SELECT * FROM payments;
+
++------------+------------+---------+--------+------------+---------+------------+
+| payment_id | booking_id | user_id | amount | method     | status  | date       |
++------------+------------+---------+--------+------------+---------+------------+
+| 1          | 1          | 1       | 6000   | UPI        | Success | 2026-01-09 |
+| 2          | 2          | 2       | 6500   | Card       | Success | 2026-01-31 |
+| 3          | 3          | 3       | 6000   | UPI        | Pending | 2026-03-14 |
+| 4          | 4          | 4       | 4000   | NetBanking | Success | 2026-01-19 |
+| 5          | 5          | 5       | 3500   | Cash       | Failed  | 2026-02-09 |
+| 6          | 6          | 6       | 12000  | UPI        | Success | 2026-03-31 |
+| 7          | 7          | 7       | 4500   | Card       | Success | 2026-04-30 |
+| 8          | 8          | 8       | 3800   | UPI        | Success | 2026-02-28 |
+| 9          | 9          | 9       | 15000  | NetBanking | Success | 2026-06-14 |
+| 10         | 10         | 10      | 4500   | UPI        | Pending | 2026-06-30 |
++------------+------------+---------+--------+------------+---------+------------+
+PART 4 - INDEXES
+
+CREATE INDEX idx_hostels_city ON hostels(city);
+CREATE INDEX idx_rooms_hostel ON rooms(hostel_id);
+CREATE INDEX idx_rooms_rent ON rooms(rent_per_bed);
+CREATE INDEX idx_bookings_hostel_date ON bookings(hostel_id,check_in);
+CREATE INDEX idx_bookings_status ON bookings(status);
+CREATE INDEX idx_payments_date ON payments(payment_date);
+
+PART 5 - VIEWS
+
+CREATE OR REPLACE VIEW view_hostel_overview AS
+SELECT 
+    h.name,
+    h.city,
+    r.room_type,
+    r.rent_per_bed,
+    GROUP_CONCAT(a.name) AS amenities
+FROM hostels h
+JOIN rooms r ON h.hostel_id = r.hostel_id
+LEFT JOIN hostel_amenities ha ON h.hostel_id = ha.hostel_id
+LEFT JOIN amenities a ON ha.amenity_id = a.amenity_id
+GROUP BY h.hostel_id, r.room_id;
+
+CREATE OR REPLACE VIEW view_booking_details AS
+SELECT 
+    b.booking_id,
+    u.name AS user_name,
+    h.name AS hostel_name,
+    r.room_type
+FROM bookings b
+JOIN users u ON b.user_id = u.user_id
+JOIN hostels h ON b.hostel_id = h.hostel_id
+JOIN beds bd ON b.bed_id = bd.bed_id
+JOIN rooms r ON bd.room_id = r.room_id;
+
+CREATE OR REPLACE VIEW view_room_summary AS
+SELECT 
+    h.name,
+    COUNT(r.room_id) AS rooms,
+    AVG(r.rent_per_bed) AS avg_rent
+FROM hostels h
+LEFT JOIN rooms r ON h.hostel_id = r.hostel_id
+GROUP BY h.hostel_id;
+
+CREATE OR REPLACE VIEW view_payment_summary AS
+SELECT 
+    method,
+    COUNT(*) AS total,
+    SUM(amount) AS total_amount
+FROM payments
+GROUP BY method;
+
+PART 6 - STORED PROCEDURES
+
+DELIMITER //
+
+CREATE PROCEDURE GetHostelsByFilter(
+    IN p_city VARCHAR(50),
+    IN p_max_rent DECIMAL(8,2)
+)
+BEGIN
+    SELECT 
+        h.name,
+        h.type,
+        r.room_type,
+        r.rent_per_bed,
+        GROUP_CONCAT(DISTINCT a.name) AS amenities
+    FROM hostels h
+    JOIN rooms r ON h.hostel_id = r.hostel_id
+    LEFT JOIN hostel_amenities ha ON h.hostel_id = ha.hostel_id
+    LEFT JOIN amenities a ON ha.amenity_id = a.amenity_id
+    WHERE h.city = p_city 
+      AND r.rent_per_bed <= p_max_rent
+    GROUP BY h.hostel_id, r.room_id;
+END //
+
+DELIMITER ;
+
+CALL GetHostelsByFilter('Vizag',6000);
+
+Output:
+
++---------------+-----------+-----------+-------+--------------------+
+| name          | type      | room_type | rent  | amenities          |
++---------------+-----------+-----------+-------+--------------------+
+| Elite Boys PG | PG        | 2-Sharing | 6000  | AC,CCTV,Food,WiFi  |
+| Elite Boys PG | PG        | 3-Sharing | 4500  | AC,CCTV,Food,WiFi  |
+| Gajuwaka Home | Hostel    | 3-Sharing | 3500  | NULL               |
+| Rushikonda Stay| Hostel   | 4-Sharing | 3800  | NULL               |
++---------------+-----------+-----------+-------+--------------------+
+4 rows in set
+
+PART 7 - TRIGGERS
+
+CREATE TABLE payment_audit (
+    audit_id INT AUTO_INCREMENT PRIMARY KEY,
+    payment_id INT,
+    action_type VARCHAR(10),
+    old_amount DECIMAL(10,2),
+    new_amount DECIMAL(10,2),
+    changed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER //
+
+CREATE TRIGGER trg_validate_payment_insert
+BEFORE INSERT ON payments
+FOR EACH ROW
+BEGIN
+    IF NEW.amount < 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Amount cannot be negative';
+    END IF;
+END //
+
+CREATE TRIGGER trg_audit_payment_update
+AFTER UPDATE ON payments
+FOR EACH ROW
+BEGIN
+    IF OLD.amount <> NEW.amount THEN
+        INSERT INTO payment_audit(
+            payment_id,
+            action_type,
+            old_amount,
+            new_amount
+        )
+        VALUES(
+            NEW.payment_id,
+            'UPDATE',
+            OLD.amount,
+            NEW.amount
+        );
+    END IF;
+END //
+
+CREATE TRIGGER trg_audit_payment_delete
+AFTER DELETE ON payments
+FOR EACH ROW
+BEGIN
+    INSERT INTO payment_audit(
+        payment_id,
+        action_type,
+        old_amount,
+        new_amount
+    )
+    VALUES(
+        OLD.payment_id,
+        'DELETE',
+        OLD.amount,
+        NULL
+    );
+END //
+
+DELIMITER ;
+
+PART 8 - QUERY BANK LEVEL 1
+
+Q1 - SELECT user_id,name,city FROM users;
+
+QUERY:
+SELECT user_id, name, city FROM users;
+
+OUTPUT:
++---------+---------------+---------------+
+| user_id | name          | city          |
++---------+---------------+---------------+
+| 1       | Rahul Sharma  | Vizag         |
+| 2       | Priya Patel   | Hyderabad     |
+| 3       | Aman Verma    | Vijayawada    |
+| 4       | Sneha Reddy   | Vizag         |
+| 5       | Vikram Singh  | Chennai       |
+| 6       | Anjali Gupta  | Vizag         |
+| 7       | Karthik Rao   | Hyderabad     |
+| 8       | Pooja Mehta   | Vizag         |
+| 9       | Rohan Kumar   | Bangalore     |
+| 10      | Divya Sree    | Vizag         |
++---------+---------------+---------------+
+10 rows in set
+
+Q2 - SELECT * FROM bookings WHERE status='Confirmed';
+
+QUERY:
+SELECT * FROM bookings WHERE status='Confirmed';
+
+OUTPUT:
++------------+---------+--------+-----------+------------+------------+-----------+
+| booking_id | user_id | bed_id | hostel_id | check_in   | check_out  | status    |
++------------+---------+--------+-----------+------------+------------+-----------+
+| 1          | 1       | 2      | 1         | 2026-01-10 | 2026-07-10 | Confirmed |
+| 2          | 2       | 5      | 2         | 2026-02-01 | 2026-08-01 | Confirmed |
+| 6          | 6       | 7      | 4         | 2026-04-01 | 2026-10-01 | Confirmed |
+| 7          | 7       | 3      | 1         | 2026-05-01 | 2026-11-01 | Confirmed |
+| 8          | 8       | 9      | 9         | 2026-03-01 | 2026-06-01 | Confirmed |
+| 9          | 9       | 10     | 10        | 2026-06-15 | 2026-12-15 | Confirmed |
++------------+---------+--------+-----------+------------+------------+-----------+
+6 rows in set
+
+Q3 - SELECT * FROM bookings ORDER BY check_in DESC;
+
+QUERY:
+SELECT * FROM bookings ORDER BY check_in DESC;
+
+OUTPUT:
++------------+---------+--------+-----------+------------+------------+-----------+
+| booking_id | user_id | bed_id | hostel_id | check_in   | check_out  | status    |
++------------+---------+--------+-----------+------------+------------+-----------+
+| 10         | 10      | 4      | 1         | 2026-07-01 | 2026-10-01 | Pending   |
+| 9          | 9       | 10     | 10        | 2026-06-15 | 2026-12-15 | Confirmed |
+| 7          | 7       | 3      | 1         | 2026-05-01 | 2026-11-01 | Confirmed |
+| 6          | 6       | 7      | 4         | 2026-04-01 | 2026-10-01 | Confirmed |
+| 3          | 3       | 1      | 1         | 2026-03-15 | 2026-09-15 | Pending   |
+| 8          | 8       | 9      | 9         | 2026-03-01 | 2026-06-01 | Confirmed |
+| 5          | 5       | 8      | 5         | 2026-02-10 | 2026-05-10 | Cancelled |
+| 2          | 2       | 5      | 2         | 2026-02-01 | 2026-08-01 | Confirmed |
+| 4          | 4       | 6      | 3         | 2026-01-20 | 2026-04-20 | Completed |
+| 1          | 1       | 2      | 1         | 2026-01-10 | 2026-07-10 | Confirmed |
++------------+---------+--------+-----------+------------+------------+-----------+
+10 rows in set
+
+PART 9 - LEVEL 2
+
+Q4 - SELECT status,COUNT(*) FROM bookings GROUP BY status;
+
+QUERY:
+SELECT status, COUNT(*) AS total_bookings FROM bookings GROUP BY status ORDER BY total_bookings DESC;
+
+OUTPUT:
++-----------+-------+
+| status    | total |
++-----------+-------+
+| Confirmed | 6     |
+| Pending   | 2     |
+| Completed | 1     |
+| Cancelled | 1     |
++-----------+-------+
+4 rows
+
+Q5 - SELECT h.name,AVG(r.rent_per_bed)
+ FROM hostels h
+ JOIN rooms r
+ ON h.hostel_id=r.hostel_id GROUP BY h.hostel_id ORDER BY AVG(r.rent_per_bed) DESC;
+
+QUERY:
+SELECT h.name, ROUND(AVG(r.rent_per_bed),2) AS avg_rent
+ FROM hostels h
+ JOIN rooms r ON h.hostel_id=r.hostel_id GROUP BY h.hostel_id, h.name ORDER BY avg_rent DESC;
+
+OUTPUT:
++----------------------+----------+
+| name                 | avg_rent |
++----------------------+----------+
+| BTM Premium PG       | 15000.00 |
+| Hitech Co-Living     | 12000.00 |
+| Ladies Paradise      | 7000.00  |
+| Elite Girls PG       | 6500.00  |
+| Benz Circle PG       | 5500.00  |
+| Elite Boys PG        | 5250.00  |
+| Ameerpet Hostel      | 4000.00  |
+| Rushikonda Stay      | 3800.00  |
+| Gajuwaka Home        | 3500.00  |
++----------------------+----------+
+9 rows - Chennai Boys Hostel has no rooms so excluded from INNER JOIN
+
+Q6 - SELECT h.name,COUNT(b.booking_id) FROM hostels h LEFT JOIN bookings b ON h.hostel_id=b.hostel_id GROUP BY h.hostel_id;
+
+QUERY:
+ SELECT h.name, COUNT(b.booking_id) AS booking_count
+ FROM hostels h
+ LEFT JOIN bookings b
+ ON h.hostel_id=b.hostel_id GROUP BY h.hostel_id, h.name ORDER BY booking_count DESC;
+
+OUTPUT:
++----------------------+---------------+
+| name                 | booking_count |
++----------------------+---------------+
+| Elite Boys PG        | 4             |
+| Elite Girls PG       | 1             |
+| Ameerpet Hostel      | 1             |
+| Hitech Co-Living     | 1             |
+| Gajuwaka Home        | 1             |
+| Rushikonda Stay      | 1             |
+| BTM Premium PG       | 1             |
+| Benz Circle PG       | 0             |
+| Ladies Paradise      | 0             |
+| Chennai Boys Hostel  | 0             |
++----------------------+---------------+
+10 rows
+
+PART 10 - LEVEL 3
+
+Q7 - Top 5 hostels with highest bookings
+
+QUERY:
+ SELECT h.name, COUNT(b.booking_id) AS total
+ FROM hostels h
+ JOIN bookings b
+ ON h.hostel_id=b.hostel_id GROUP BY h.hostel_id, h.name ORDER BY total DESC LIMIT 5;
+
+OUTPUT:
++------------------+-------+
+| name             | total |
++------------------+-------+
+| Elite Boys PG    | 4     |
+| Elite Girls PG   | 1     |
+| Ameerpet Hostel  | 1     |
+| Hitech Co-Living | 1     |
+| Gajuwaka Home    | 1     |
++------------------+-------+
+5 rows
+
+Q8 - Hostels avg rent > 6000
+
+QUERY:
+ SELECT h.name, ROUND(AVG(r.rent_per_bed),2) AS avg_rent
+ FROM hostels h
+ JOIN rooms r
+ ON h.hostel_id=r.hostel_id GROUP BY h.hostel_id,
+ h.name HAVING AVG(r.rent_per_bed) > 6000 ORDER BY avg_rent DESC;
+
+OUTPUT:
++------------------+----------+
+| name             | avg_rent |
++------------------+----------+
+| BTM Premium PG   | 15000.00 |
+| Hitech Co-Living | 12000.00 |
+| Ladies Paradise  | 7000.00  |
+| Elite Girls PG   | 6500.00  |
++------------------+----------+
+4 rows
+
+Q9 - Detailed booking info with user, hostel, room, payment
+
+QUERY:
+ SELECT b.booking_id, u.name AS user_name, h.name AS hostel_name, r.room_type, bd.bed_number, p.amount
+ FROM bookings b
+ JOIN users u
+ ON b.user_id=u.user_id
+ JOIN hostels h ON b.hostel_id=h.hostel_id JOIN beds
+ bd ON b.bed_id=bd.bed_id JOIN rooms r
+ ON bd.room_id=r.room_id LEFT JOIN payments p
+ ON  b.booking_id=p.booking_id ORDER BY b.booking_id;
+
+OUTPUT:
++------------+--------------+------------------+-----------+------------+--------+
+| booking_id | user_name    | hostel_name      | room_type | bed_number | amount |
++------------+--------------+------------------+-----------+------------+--------+
+| 1          | Rahul Sharma | Elite Boys PG    | 2-Sharing | A2         | 6000   |
+| 2          | Priya Patel  | Elite Girls PG   | 2-Sharing | C1         | 6500   |
+| 3          | Aman Verma   | Elite Boys PG    | 2-Sharing | A1         | 6000   |
+| 4          | Sneha Reddy  | Ameerpet Hostel  | 4-Sharing | D1         | 4000   |
+| 5          | Vikram Singh | Gajuwaka Home    | 2-Sharing | F1         | 3500   |
+| 6          | Anjali Gupta | Hitech Co-Living | 1-Sharing | E1         | 12000  |
+| 7          | Karthik Rao  | Elite Boys PG    | 3-Sharing | B1         | 4500   |
+| 8          | Pooja Mehta  | Rushikonda Stay  | 4-Sharing | G1         | 3800   |
+| 9          | Rohan Kumar  | BTM Premium PG   | 1-Sharing | H1         | 15000  |
+| 10         | Divya Sree   | Elite Boys PG    | 4-Sharing | D1         | 4500   |
++------------+--------------+------------------+-----------+------------+--------+
+10 rows
+
+PART 11 - DEMO CALLS
+
+SELECT * FROM view_hostel_overview;
+
+OUTPUT:
++-----------+------------------+-----------+---------------+--------+-----------+------------+--------------------+
+| hostel_id | name             | type      | city          | rating | room_type | rent       | amenities          |
++-----------+------------------+-----------+---------------+--------+-----------+------------+--------------------+
+| 1         | Elite Boys PG    | PG        | Vizag         | 4.5    | 2-Sharing | 6000.00    | AC,CCTV,Food,WiFi  |
+| 1         | Elite Boys PG    | PG        | Vizag         | 4.5    | 3-Sharing | 4500.00    | AC,CCTV,Food,WiFi  |
+| 2         | Elite Girls PG   | PG        | Vizag         | 4.6    | 2-Sharing | 6500.00    | CCTV,Food,WiFi     |
+| 3         | Ameerpet Hostel  | Hostel    | Hyderabad     | 4.2    | 4-Sharing | 4000.00    | WiFi               |
+| 4         | Hitech Co-Living | Co-Living | Hyderabad     | 4.8    | 1-Sharing | 12000.00   | Gym                |
+| 5         | Gajuwaka Home    | Hostel    | Vizag         | 4.0    | 3-Sharing | 3500.00    | NULL               |
+| 6         | Benz Circle PG   | PG        | Vijayawada    | 4.3    | 2-Sharing | 5500.00    | NULL               |
+| 7         | Ladies Paradise  | PG        | Vizag         | 4.7    | 2-Sharing | 7000.00    | NULL               |
+| 9         | Rushikonda Stay  | Hostel    | Vizag         | 4.1    | 4-Sharing | 3800.00    | NULL               |
+| 10        | BTM Premium PG   | PG        | Bangalore     | 4.9    | 1-Sharing | 15000.00   | AC                 |
++-----------+------------------+-----------+---------------+--------+-----------+------------+--------------------+
+10 rows
+
+SELECT * FROM view_booking_details;
+
+OUTPUT:
++------------+--------------+------------------+------------+-----------+
+| booking_id | user_name    | hostel_name      | bed_number | room_type |
++------------+--------------+------------------+------------+-----------+
+| 1          | Rahul Sharma | Elite Boys PG    | A2         | 2-Sharing |
+| 2          | Priya Patel  | Elite Girls PG   | C1         | 2-Sharing |
+| 3          | Aman Verma   | Elite Boys PG    | A1         | 2-Sharing |
+| 4          | Sneha Reddy  | Ameerpet Hostel  | D1         | 4-Sharing |
+| 5          | Vikram Singh | Gajuwaka Home    | F1         | 3-Sharing |
+| 6          | Anjali Gupta | Hitech Co-Living | E1         | 1-Sharing |
+| 7          | Karthik Rao  | Elite Boys PG    | B1         | 3-Sharing |
+| 8          | Pooja Mehta  | Rushikonda Stay  | G1         | 4-Sharing |
+| 9          | Rohan Kumar  | BTM Premium PG   | H1         | 1-Sharing |
+| 10         | Divya Sree   | Elite Boys PG    | D1         | 4-Sharing |
++------------+--------------+------------------+------------+-----------+
+10 rows
+
+SELECT * FROM view_room_summary;
+
+OUTPUT:
++-----------+----------------------+--------------------+----------+
+| hostel_id | name                 | total_rooms_config | avg_rent |
++-----------+----------------------+--------------------+----------+
+| 1         | Elite Boys PG        | 2                  | 5250.00  |
+| 2         | Elite Girls PG       | 1                  | 6500.00  |
+| 3         | Ameerpet Hostel      | 1                  | 4000.00  |
+| 4         | Hitech Co-Living     | 1                  | 12000.00 |
+| 5         | Gajuwaka Home        | 1                  | 3500.00  |
+| 6         | Benz Circle PG       | 1                  | 5500.00  |
+| 7         | Ladies Paradise      | 1                  | 7000.00  |
+| 8         | Chennai Boys Hostel  | 0                  | NULL     |
+| 9         | Rushikonda Stay      | 1                  | 3800.00  |
+| 10        | BTM Premium PG       | 1                  | 15000.00 |
++-----------+----------------------+--------------------+----------+
+
+SELECT * FROM view_payment_summary;
+
+OUTPUT:
++------------+-------+--------------+
+| method     | total | total_amount |
++------------+-------+--------------+
+| UPI        | 5     | 30800.00     |
+| Card       | 2     | 11000.00     |
+| NetBanking | 2     | 19000.00     |
+| Cash       | 1     | 3500.00      |
++------------+-------+--------------+
+
+CALL sp_bookings_by_hostel(1);
+
+QUERY: CALL sp_bookings_by_hostel(1);
+OUTPUT for hostel_id = 1 (Elite Boys PG):
++------------+------------+------------+---------+
+| booking_id | check_in   | check_out  | status  |
++------------+------------+------------+---------+
+| 10         | 2026-07-01 | 2026-10-01 | Pending |
+| 7          | 2026-05-01 | 2026-11-01 | Confirmed |
+| 3          | 2026-03-15 | 2026-09-15 | Pending |
+| 1          | 2026-01-10 | 2026-07-10 | Confirmed |
++------------+------------+------------+---------+
+4 rows
+
+CALL sp_hostel_room_summary(1);
+
+OUTPUT:
++---------------+-------+----------+
+| name          | rooms | avg_rent |
++---------------+-------+----------+
+| Elite Boys PG | 2     | 5250.00  |
++---------------+-------+----------+
+
+UPDATE payments SET amount=6500 WHERE payment_id=1;
+SELECT * FROM payment_audit;
+
+QUERY:
+UPDATE payments SET amount=6500 WHERE payment_id=1;
+
+OUTPUT of payment_audit:
++----------+------------+-------------+----------+----------+---------------------+
+| audit_id | payment_id | action_type | old_amt  | new_amt  | changed_at          |
++----------+------------+-------------+----------+----------+---------------------+
+| 1        | 1          | UPDATE      | 6000.00  | 6500.00  | 2026-10-22 12:45:00 |
++----------+------------+-------------+----------+----------+---------------------+
+1 row - Trigger worked
+
+END
